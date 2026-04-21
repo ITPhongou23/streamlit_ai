@@ -8,7 +8,7 @@ hf_token = os.getenv("HF_TOKEN")
 
 pages = st.navigation([
     st.Page("src/pages/Home.py", title="Trang chủ"),
-    st.Page("src/pages/Faq.py", title="Hướng dẫn sử dụng"),
+    st.Page("src/pages/FAQ.py", title="Hướng dẫn sử dụng"),
     st.Page("src/pages/detector.py", title="Kiểm tra AI"),
 ])
 
