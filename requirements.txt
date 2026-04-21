@@ -1,0 +1,5 @@
+-r src/requirements/base.txt
+-r src/requirements/data_processing.txt
+-r src/requirements/ml_dl_ai.txt
+-r src/requirements/streamlit.txt
+-r src/requirements/tools.txt

@@ -1,5 +1,0 @@
--r base.txt
--r data_processing.txt
--r ml_dl_ai.txt
--r streamlit.txt
--r tools.txt
