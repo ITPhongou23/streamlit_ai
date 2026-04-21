@@ -7,9 +7,9 @@ load_dotenv(find_dotenv())
 hf_token = os.getenv("HF_TOKEN")
 
 pages = st.navigation([
-    st.Page("pages/home.py", title="Trang chủ"),
-    st.Page("pages/faq.py", title="Hướng dẫn sử dụng"),
-    st.Page("pages/detector.py", title="Kiểm tra AI"),
+    st.Page("src/pages/home.py", title="Trang chủ"),
+    st.Page("src/pages/faq.py", title="Hướng dẫn sử dụng"),
+    st.Page("src/pages/detector.py", title="Kiểm tra AI"),
 ])
 
 pages.run()
