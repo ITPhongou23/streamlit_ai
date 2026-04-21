@@ -3,7 +3,7 @@ from PIL import Image
 
 
 def init_page(title):
-    icon = Image.open("assets/icons.png")
+    icon = Image.open("/src/assets/icons.png")
 
     st.set_page_config(
         page_title=title,
