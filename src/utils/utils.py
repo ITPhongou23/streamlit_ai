@@ -8,7 +8,7 @@ def init_page(title):
     src_dir = os.path.dirname(current_dir)
     icon_path = os.path.join(src_dir, "assets", "icons.png")
     
-    icon = Image.open("icon_path")
+    icon = Image.open(icon_path)
 
     st.set_page_config(
         page_title=title,
