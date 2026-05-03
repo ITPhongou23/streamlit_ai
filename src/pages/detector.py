@@ -21,11 +21,9 @@ text_kq = ""
 
 
 #Hàm.
-@st.cache_resource
 def load_model(model_name):
     return pipeline("text-classification", model=model_name)
 
-@st.cache_resource
 def load_file_model(model_name):
     path = hf_hub_download(repo_id=model_name, filename="xgb_robust_final.joblib")
     return joblib.load(path)
