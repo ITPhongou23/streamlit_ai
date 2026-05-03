@@ -23,15 +23,16 @@ text_kq = ""
 #Hàm.
 @st.cache_resource
 def load_model(model_name):
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
     return pipeline(
         "text-classification",
         model=model,
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
+        truncation=True,
+        max_length=256
     )
-
 
 def get_model(status, options, model_name):
     if status == options[0]:
