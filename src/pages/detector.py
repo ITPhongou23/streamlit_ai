@@ -32,19 +32,12 @@ def load_model(model_name):
         tokenizer=tokenizer
     )
 
-@st.cache_resource
-def load_file_model(model_name):
-    path = hf_hub_download(repo_id=model_name, filename="xgb_robust_final.joblib")
-    return joblib.load(path)
 
 def get_model(status, options, model_name):
-    for i in range(2):
-        n = i
-        if status == options[i]:
-            if i < 2:
-                return load_model(model_name[i]), n
-            else:
-                return load_file_model(model_name[i]), n
+    if status == options[0]:
+        return load_model(model_name[0]), 0
+    else:
+        return load_model(model_name[1]), 1
 
 def set_label(result_label):
     if result_label == 'AI':
@@ -157,13 +150,7 @@ with col_right:
             else:
                 with st.spinner("Đang xử lý yêu cầu"):
                     try:
-                        if status == options[0] or status == options[1]:
-                            result = clf(processed_text)
-                        else:
-                            vectorizer = load_file_model(model_name)
-
-                            X = vectorizer.transform([processed_text])
-                            result = clf.predict(X)
+                        result = clf(processed_text)
 
                         if isinstance(result, list):
                             result = result[0]
@@ -176,6 +163,11 @@ with col_right:
 
 
                         #render UI.
+                        st.write("INPUT:", processed_text)
+                        st.write("MODEL TYPE:", type(clf))
+                        if hasattr(clf, "tokenizer"):
+                            st.write("VOCAB:", len(clf.tokenizer))
+
                         render_circle_score(result_label, score)
 
                         render_score(label1, label2, score)
