@@ -1,5 +1,5 @@
 import streamlit as st
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 
 from src.services.generate_docx_services import generate_docx
 from src.services.pdf_reader_services import PdfReaderManager
@@ -23,10 +23,13 @@ text_kq = ""
 #Hàm.
 @st.cache_resource
 def load_model(model_name):
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
+    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+
     return pipeline(
         "text-classification",
-        model=model_name,
-        tokenizer=model_name
+        model=model,
+        tokenizer=tokenizer
     )
 
 @st.cache_resource
