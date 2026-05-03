@@ -349,3 +349,63 @@ div.stButton > button:hover {
     border: 1px solid var(--border-main);
     color: var(--text-main);
 }
+
+.circle {
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:auto;
+}
+
+.circle-inner {
+    width:105px;
+    height:105px;
+    border-radius:50%;
+    background:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:500;
+    color:#2e8b57;
+}
+
+.badge-container {
+    width:100%;
+    margin-top:10px;
+    display:flex;
+    padding:10px;
+    justify-content:center;
+    gap:15px;
+}
+
+.badge-green {
+    border: 2px solid #2e8b57;
+    background:#f0f9f4;
+    padding:10px 15px;
+    border-radius:999px;
+    color:#2e8b57;
+    font-weight:600;
+}
+
+.badge-blue {
+    border: 2px solid #1e3a8a;
+    background:#f0f9f4;
+    padding:10px 15px;
+    border-radius:999px;
+    color:#1e3a8a;
+    font-weight:600;
+}
+
+.result-text {
+    font-family: 'Inter';
+    max-width: 600px;
+    margin: 5px auto;
+    padding: 20px 24px;
+    text-align: center;
+    font-size: 22px;
+    color: #111827;
+    line-height: 1.6;
+}
