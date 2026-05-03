@@ -1,10 +1,10 @@
 import streamlit as st
 from transformers import pipeline
 
-from services.generate_docx_services import generate_docx
-from services.pdf_reader_services import PdfReaderManager
-from services.pipeline import PipelineManager
-from utils.utils import init_page, render_footer
+from src.services.generate_docx_services import generate_docx
+from src.services.pdf_reader_services import PdfReaderManager
+from src.services.pipeline import PipelineManager
+from src.utils.utils import init_page, render_footer
 from huggingface_hub import hf_hub_download
 import joblib
 

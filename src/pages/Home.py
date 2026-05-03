@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.utils import init_page, render_footer
+from src.utils.utils import init_page, render_footer
 
 init_page("AI News Indicator")
 

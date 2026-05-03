@@ -3,7 +3,7 @@ from PIL import Image
 
 
 def init_page(title):
-    icon = Image.open("assets/icons.png")
+    icon = Image.open("src/assets/icons.png")
 
     st.set_page_config(
         page_title=title,
@@ -12,7 +12,7 @@ def init_page(title):
     )
 
     try:
-        with open("assets/css/styles.css") as f:
+        with open("src/assets/css/styles.css") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         pass
