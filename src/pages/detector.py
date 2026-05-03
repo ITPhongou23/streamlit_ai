@@ -164,11 +164,6 @@ with col_right:
 
 
                         #render UI.
-                        st.write("INPUT:", processed_text)
-                        st.write("MODEL TYPE:", type(clf))
-                        if hasattr(clf, "tokenizer"):
-                            st.write("VOCAB:", len(clf.tokenizer))
-
                         render_circle_score(result_label, score)
 
                         render_score(label1, label2, score)
