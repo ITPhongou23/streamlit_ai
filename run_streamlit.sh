@@ -9,17 +9,17 @@ if [[ "$confirm" != [yY] ]]; then
 fi
 
 
-if [ ! -d ".venv" ]; then
-    python -m .venv venv
+if [ ! -d "venv" ]; then
+    python -m venv venv
 else
     echo "Đã có môi trường ảo!"
 fi
 
 
-if [ -f ".venv/bin/activate" ]; then
-    source .venv/bin/activate
-elif [ -f ".venv/Scripts/activate" ]; then
-    source .venv/Scripts/activate
+if [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+elif [ -f "venv/Scripts/activate" ]; then
+    source venv/Scripts/activate
 else
     echo "Lỗi kích hoạt môi trường ảo!"
     exit 1

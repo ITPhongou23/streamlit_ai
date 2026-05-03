@@ -10,3 +10,12 @@ hf-xet==1.2.0
 regex==2026.1.15
 tqdm==4.67.2
 pypdf==6.6.2
+joblib==1.5.3
+py_vncorenlp==0.1.4
+pyjnius==1.7.0
+scikit-learn==1.8.0
+scipy==1.17.1
+threadpoolctl==3.6.0 
+underthesea==9.4.0 
+underthesea_core==3.3.0 
+xgboost==3.2

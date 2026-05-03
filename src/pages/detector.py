@@ -1,44 +1,45 @@
 import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from transformers import pipeline
 
 from src.services.generate_docx_services import generate_docx
 from src.services.pdf_reader_services import PdfReaderManager
 from src.services.pipeline import PipelineManager
+from src.services.phobert_interface import PhoBERTDataInterface
 from src.utils.utils import init_page, render_footer
-from huggingface_hub import hf_hub_download
-import joblib
+
 
 #Biến.
 init_page("AI Detector")
-options = ["Phobert-large-VietNamese-news-ai-detection", "Phobert-v2-VietNamese-news-ai-detection"]
-model_name = ["JuniorThanh/phobert-large-vietnamese-news-ai-detection","JuniorThanh/phobert-v2-vietnamese-news-ai-detection"]
+options = ["Phobert-large-VietNamese-news-ai-detection", "Phobert-v2-VietNamese-news-ai-detection", "xgboost-final-streamlit-traditional-unstable","xgboost-final-streamlit-lite","xgboost-final-streamlit"]
+model_name = ["JuniorThanh/phobert-large-vietnamese-news-ai-detection","JuniorThanh/phobert-v2-vietnamese-news-ai-detection","JuniorThanh/xgboost_final_streamlit_traditional_unstable","JuniorThanh/xgboost_final_streamlit_lite","JuniorThanh/xgboost_final_streamlit"]
 n = 0
 err_msg = ""
 label1 = ""
 label2 = ""
 text_kq = ""
 
-
-
 #Hàm.
 @st.cache_resource
 def load_model(model_name):
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+    return pipeline("text-classification", model=model_name, truncation=True, max_length=256)
 
-    return pipeline(
-        "text-classification",
-        model=model,
-        tokenizer=tokenizer,
-        truncation=True,
-        max_length=256
-    )
+@st.cache_resource
+def load_phobert_interface():
+    return PhoBERTDataInterface(vncorenlp_save_dir='vncorenlp')
+
+@st.cache_resource
+def load_file_model(model_name):
+    from services.xgb_interface import XGBInterface
+    return XGBInterface(model_name)
 
 def get_model(status, options, model_name):
-    if status == options[0]:
-        return load_model(model_name[0]), 0
-    else:
-        return load_model(model_name[1]), 1
+    for i in range(5):
+        n = i
+        if status == options[i]:
+            if i < 2:
+                return load_model(model_name[i]), n
+            else:
+                return load_file_model(model_name[i]), n
 
 def set_label(result_label):
     if result_label == 'AI':
@@ -80,8 +81,6 @@ def render_circle_score(label, score):
     </div>
     """, unsafe_allow_html=True)
 
-
-
 #Header.
 if "status" not in st.session_state:
     st.session_state.status = options[0]
@@ -99,11 +98,8 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-
-
 #Body.
 col_left, col_right = st.columns(2, gap="medium")
-
 
 with col_left:
     st.markdown('<p class="label-v3">INPUT TẠI ĐÂY</p>', unsafe_allow_html=True)
@@ -136,8 +132,6 @@ with col_left:
             check_btn = False
             err_msg = "Vui lòng nhập từ 200 đến 600 từ trước khi phân tích"
 
-
-
 with col_right:
     st.markdown('<p class="label-v3">KẾT QUẢ PHÂN TÍCH</p>', unsafe_allow_html=True)
     result_placeholder = st.container(border=True)
@@ -151,7 +145,19 @@ with col_right:
             else:
                 with st.spinner("Đang xử lý yêu cầu"):
                     try:
-                        result = clf(processed_text)
+                        if status == options[0] or status == options[1]:
+                            phobert_interface = load_phobert_interface()
+                            try:
+                                processed_data = phobert_interface.process_data(text, label=0)
+                                final_text = processed_data["segmented_text"]
+                            except ValueError as ve:
+                                st.warning(str(ve))
+                                final_text = processed_text
+
+                            result = clf(final_text, truncation=True, max_length=256)
+                        else:
+                            result = clf.predict(processed_text)
+                            result = {"label": "LABEL_1" if result["prediction"] == 1 else "LABEL_0", "score": result["probability"]}
 
                         if isinstance(result, list):
                             result = result[0]
@@ -161,7 +167,6 @@ with col_right:
                         label1, label2, text_kq = set_label(result_label)
 
                         docx_file = generate_docx(processed_text, result_label, score)
-
 
                         #render UI.
                         render_circle_score(result_label, score)

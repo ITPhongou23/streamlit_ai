@@ -1,9 +1,12 @@
+import os
 import streamlit as st
 from PIL import Image
 
 
 def init_page(title):
-    icon = Image.open("src/assets/icons.png")
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+    icon_path = os.path.join(BASE_DIR, "assets", "icons.png")
+    icon = Image.open(icon_path)
 
     st.set_page_config(
         page_title=title,
@@ -11,8 +14,9 @@ def init_page(title):
         layout="wide"
     )
 
+    css_path = os.path.join(BASE_DIR, "assets", "css", "styles.css")
     try:
-        with open("src/assets/css/styles.css") as f:
+        with open(css_path) as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         pass
