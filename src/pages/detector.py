@@ -17,6 +17,8 @@ err_msg = ""
 label1 = ""
 label2 = ""
 text_kq = ""
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+VNCORENLP_PATH = os.path.join(BASE_DIR, "vncorenlp")
 
 #Hàm.
 @st.cache_resource
@@ -25,11 +27,11 @@ def load_model(model_name):
 
 @st.cache_resource
 def load_phobert_interface():
-    return PhoBERTDataInterface(vncorenlp_save_dir='vncorenlp')
+    return PhoBERTDataInterface(vncorenlp_save_dir=VNCORENLP_PATH)
 
 @st.cache_resource
 def load_file_model(model_name):
-    from services.xgb_interface import XGBInterface
+    from src.services.xgb_interface import XGBInterface
     return XGBInterface(model_name)
 
 def get_model(status, options, model_name):
