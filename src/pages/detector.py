@@ -1,5 +1,6 @@
 import streamlit as st
 from transformers import pipeline
+import os
 
 from src.services.generate_docx_services import generate_docx
 from src.services.pdf_reader_services import PdfReaderManager
@@ -17,7 +18,7 @@ err_msg = ""
 label1 = ""
 label2 = ""
 text_kq = ""
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VNCORENLP_PATH = os.path.join(BASE_DIR, "vncorenlp")
 
 #Hàm.
