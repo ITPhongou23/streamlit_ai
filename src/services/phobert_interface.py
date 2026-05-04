@@ -79,8 +79,7 @@ class PhoBERTDataInterface:
 
         if not is_valid:
             raise ValueError(f"Văn bản bị từ chối: {cleaned_text}")
-
-        # 🔥 dùng underthesea thay VnCoreNLP
+            
         segmented_text = self._segment_text(cleaned_text)
 
         return {
