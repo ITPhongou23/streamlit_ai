@@ -21,7 +21,9 @@ import joblib
 try:
     from your_custom_ner import ner
 except ImportError:
-    def ner(text): return []
+    def ner(text):
+        return []
+
 
 def load_const_seeds(filepath="src/models/configs/const_seeds.json"):
     if not os.path.exists(filepath):
@@ -34,11 +36,14 @@ def load_const_seeds(filepath="src/models/configs/const_seeds.json"):
     except Exception as e:
         raise RuntimeError(f"Lỗi không xác định khi đọc file '{filepath}': {e}")
 
+
 CONST_SEED = load_const_seeds()
+
 
 class PipelineStep:
     def execute(self, df, text_col, label_col=None):
         raise NotImplementedError
+
 
 class CausalSurprisalStep(PipelineStep):
     def __init__(self, model_name="NlpHUST/gpt2-vietnamese"):
@@ -105,6 +110,7 @@ class CausalSurprisalStep(PipelineStep):
             df[f'gpt_{k}'] = metrics[k]
         return df
 
+
 class AdvancedLogicFeatureExtractor(PipelineStep):
     def __init__(self,
                  seeds=None,
@@ -119,7 +125,10 @@ class AdvancedLogicFeatureExtractor(PipelineStep):
             raise ValueError("Thiếu file seed")
         self.seeds = seeds
         self.pronoun_list = pronoun_list or {
-            'tôi', 'ta', 'chúng ta', 'chúng tôi', 'mình', 'bạn', 'các bạn', 'họ', 'bọn họ', 'anh', 'chị', 'em', 'ông', 'bà', 'chú', 'bác', 'nó', 'hắn', 'tao', 'mày', 'tớ', 'tụi', 'tụi nó', 'bọn', 'bọn nó', 'anh ấy', 'chị ấy', 'cô ấy', 'ông ấy', 'bà ấy', 'anh ta', 'chị ta', 'họ ta', 'cô', 'dì', 'dượng', 'cậu', 'mợ', 'thầy', 'con', 'cháu', 'người ta', 'ai đó', 'mọi người', 'chúng nó', 'tụi mình', 'bọn mình'
+            'tôi', 'ta', 'chúng ta', 'chúng tôi', 'mình', 'bạn', 'các bạn', 'họ', 'bọn họ', 'anh', 'chị', 'em', 'ông',
+            'bà', 'chú', 'bác', 'nó', 'hắn', 'tao', 'mày', 'tớ', 'tụi', 'tụi nó', 'bọn', 'bọn nó', 'anh ấy', 'chị ấy',
+            'cô ấy', 'ông ấy', 'bà ấy', 'anh ta', 'chị ta', 'họ ta', 'cô', 'dì', 'dượng', 'cậu', 'mợ', 'thầy', 'con',
+            'cháu', 'người ta', 'ai đó', 'mọi người', 'chúng nó', 'tụi mình', 'bọn mình'
         }
         self.verb_noise_list = verb_noise_list or {
             'nghĩ', 'thấy', 'cho rằng', 'rằng', 'là', 'sẽ', 'đã', 'đang'
@@ -253,8 +262,10 @@ class AdvancedLogicFeatureExtractor(PipelineStep):
             expected_logic = float(df['logic_density'].mean())
             self.export_markers_for_production(expected_logic, "src/models/configs/logic_markers_prod.json")
         df['logic_deviation'] = abs(df['logic_density'] - expected_logic)
-        df = df.drop(columns=['logic_transition_points','num_sentences', 'transition_count'] + [f'{g}_count' for g in self.groups])
+        df = df.drop(columns=['logic_transition_points', 'num_sentences', 'transition_count'] + [f'{g}_count' for g in
+                                                                                                 self.groups])
         return df
+
 
 class SyntacticAndStructuralStep(PipelineStep):
     def __init__(self):
@@ -290,6 +301,7 @@ class SyntacticAndStructuralStep(PipelineStep):
         cols = ['sent_len_cv', 'comma_density', 'punctuation_density', 'pronoun_ratio']
         df[cols] = pd.DataFrame(res.tolist(), index=df.index)
         return df
+
 
 class PhoBERTFeaturePipeline(PipelineStep):
     def __init__(self, model_name="vinai/phobert-base-v2", batch_size=16):
@@ -351,7 +363,7 @@ class PhoBERTFeaturePipeline(PipelineStep):
             else:
                 sent_chunks_idx = []
                 for i in range(0, len(tokens), self.max_length - self.stride - 2):
-                    window_tokens = tokens[i : i + (self.max_length - 2)]
+                    window_tokens = tokens[i: i + (self.max_length - 2)]
                     chunked_inputs.append([tokenizer.cls_token_id] + window_tokens + [tokenizer.sep_token_id])
                     sent_chunks_idx.append(current_chunk_idx)
                     current_chunk_idx += 1
@@ -361,7 +373,7 @@ class PhoBERTFeaturePipeline(PipelineStep):
         pad_id = tokenizer.pad_token_id
         with torch.no_grad():
             for i in range(0, len(chunked_inputs), self.batch_size):
-                batch_tokens = chunked_inputs[i : i + self.batch_size]
+                batch_tokens = chunked_inputs[i: i + self.batch_size]
                 max_len = max(len(t) for t in batch_tokens)
                 input_ids = torch.tensor(
                     [t + [pad_id] * (max_len - len(t)) for t in batch_tokens],
@@ -397,7 +409,8 @@ class PhoBERTFeaturePipeline(PipelineStep):
             all_sentences.extend(sents)
             current_idx += n_sents
         if not all_sentences:
-            for col in ['sentence_embedding_coherence', 'topic_drift_score', 'semantic_drift_score', 'embedding_distribution_entropy']:
+            for col in ['sentence_embedding_coherence', 'topic_drift_score', 'semantic_drift_score',
+                        'embedding_distribution_entropy']:
                 df[col] = 0.0
             return df
         tokenizer = None
@@ -407,7 +420,8 @@ class PhoBERTFeaturePipeline(PipelineStep):
             model = AutoModel.from_pretrained(self.model_name).to(self.device)
             all_embeddings = self._get_sentence_embeddings(all_sentences, tokenizer, model)
         except Exception as e:
-            for col in ['sentence_embedding_coherence', 'topic_drift_score', 'semantic_drift_score', 'embedding_distribution_entropy']:
+            for col in ['sentence_embedding_coherence', 'topic_drift_score', 'semantic_drift_score',
+                        'embedding_distribution_entropy']:
                 df[col] = 0.0
             return df
         finally:
@@ -451,23 +465,30 @@ class PhoBERTFeaturePipeline(PipelineStep):
         df['embedding_distribution_entropy'] = entropies
         return df
 
+
 class InteractionFeatureStep(PipelineStep):
     def execute(self, df: pd.DataFrame, text_col: str, label_col: str) -> pd.DataFrame:
         out_df = df.copy()
         out_df['gpt_var_x_semantic_drift'] = out_df.get('gpt_var', 0) * out_df.get('semantic_drift_score', 0)
-        out_df['gpt_mean_x_embedding_coherence'] = out_df.get('gpt_mean', 0) * out_df.get('sentence_embedding_coherence', 0)
+        out_df['gpt_mean_x_embedding_coherence'] = out_df.get('gpt_mean', 0) * out_df.get(
+            'sentence_embedding_coherence', 0)
         out_df['gpt_tail_x_semantic_drift'] = out_df.get('gpt_tail', 0) * out_df.get('semantic_drift_score', 0)
         out_df['comma_density_x_gpt_var'] = out_df.get('comma_density', 0) * out_df.get('gpt_var', 0)
-        out_df['logic_deviation_x_embedding_coherence'] = out_df.get('logic_deviation', 0) * out_df.get('sentence_embedding_coherence', 0)
+        out_df['logic_deviation_x_embedding_coherence'] = out_df.get('logic_deviation', 0) * out_df.get(
+            'sentence_embedding_coherence', 0)
         out_df['transition_density'] = (out_df.get('causal_density', 0) +
                                         out_df.get('contrast_density', 0) +
                                         out_df.get('additive_density', 0) +
                                         out_df.get('temporal_density', 0))
-        out_df['embedding_coherence_x_entropy'] = out_df.get('sentence_embedding_coherence', 0) * out_df.get('embedding_distribution_entropy', 0)
-        out_df['semantic_drift_x_entropy'] = out_df.get('semantic_drift_score', 0) * out_df.get('embedding_distribution_entropy', 0)
+        out_df['embedding_coherence_x_entropy'] = out_df.get('sentence_embedding_coherence', 0) * out_df.get(
+            'embedding_distribution_entropy', 0)
+        out_df['semantic_drift_x_entropy'] = out_df.get('semantic_drift_score', 0) * out_df.get(
+            'embedding_distribution_entropy', 0)
         out_df['semantic_drift_ratio'] = out_df.get('semantic_drift_score', 0) / (out_df.get('gpt_var', 0) + 1e-5)
-        out_df['combo_gpt_sent_punct'] = out_df.get('gpt_var', 0) * out_df.get('sent_len_cv', 0) * out_df.get('punctuation_density', 0)
+        out_df['combo_gpt_sent_punct'] = out_df.get('gpt_var', 0) * out_df.get('sent_len_cv', 0) * out_df.get(
+            'punctuation_density', 0)
         return out_df
+
 
 class TextAnalyzerUI:
     def __init__(self, const_seeds):
@@ -515,7 +536,8 @@ class TextAnalyzerUI:
         word_count = len(words)
         if word_count < 200 or word_count > 2000:
             return False, f"Độ dài không hợp lệ ({word_count} từ). Yêu cầu từ 200 đến 2000 từ."
-        vietnamese_vowels = re.findall(r'[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỹỷỵ]', text.lower())
+        vietnamese_vowels = re.findall(r'[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỹỷỵ]',
+                                       text.lower())
         if (len(vietnamese_vowels) / word_count) < 0.2:
             return False, "Tỷ lệ nguyên âm tiếng Việt quá thấp (Nghi ngờ Spam)."
         return True, text
@@ -566,6 +588,7 @@ class TextAnalyzerUI:
         result_df = result_df.sort_index()
         return result_df
 
+
 class BatchEvaluator:
     def __init__(self, text_analyzer, trained_model, model_config):
         self.analyzer = text_analyzer
@@ -579,23 +602,27 @@ class BatchEvaluator:
         extracted_df = self.analyzer.execute(df.copy(), text_col=text_col)
         missing_cols = [col for col in self.feature_names if col not in extracted_df.columns]
         if missing_cols:
-             print(f"LỖI NGHIÊM TRỌNG: Dữ liệu trích xuất thiếu các cột: {missing_cols}")
-             return None
+            print(f"LỖI NGHIÊM TRỌNG: Dữ liệu trích xuất thiếu các cột: {missing_cols}")
+            return None
         valid_df = extracted_df[self.feature_names].fillna(0.0)
         if hasattr(self.model, "predict_proba"):
+            # raw_probs là xác suất của class 1 (thường là AI)
             raw_probs = self.model.predict_proba(valid_df)[:, 1]
-            scaled_probs = np.where(
-                raw_probs < self.threshold,
-                (raw_probs / self.threshold) * 0.5,
-                0.5 + ((raw_probs - self.threshold) / (1.0 - self.threshold)) * 0.5
-            )
-            probabilities = scaled_probs
-            predictions = (scaled_probs >= 0.5).astype(int)
+
+            # Dự đoán dựa trên ngưỡng treshold
+            predictions = (raw_probs >= self.threshold).astype(int)
+
+            # Khắc phục lỗi hiển thị UI ngược:
+            # UI cần 'Độ tự tin của nhãn vừa được dự đoán' thay vì nhận cứng xác suất class 1.
+            # Trả về: raw_probs nếu kết luận là 1 (AI), và (1.0 - raw_probs) nếu kết luận là 0 (Human)
+            probabilities = np.where(predictions == 1, raw_probs, 1.0 - raw_probs)
         else:
             probabilities = [None] * len(valid_df)
             predictions = self.model.predict(valid_df)
+
         extracted_df['predicted_label'] = predictions
         extracted_df['probability'] = probabilities
+
         if label_col in extracted_df.columns:
             extracted_df['is_correct'] = extracted_df['predicted_label'] == extracted_df[label_col]
         total_samples = len(df)
@@ -605,6 +632,7 @@ class BatchEvaluator:
             incorrect_predictions = valid_samples - correct_predictions
             accuracy = (correct_predictions / valid_samples * 100)
         return extracted_df
+
 
 class XGBInterface:
     def __init__(self, hf_repo_id="JuniorThanh/xgboost_final_streamlit"):
