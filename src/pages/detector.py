@@ -82,9 +82,17 @@ def render_score_xgboost(label1, label2, prediction, score):
     if prediction == 0:
         score_0 = inverse_pct
         score_1 = score_pct
+        if score_0 < score_1:
+            exp = score_0
+            score_0 = score_1
+            score_1 = exp
     else:
         score_0 = score_pct
         score_1 = inverse_pct
+        if score_0 < score_1:
+            exp = score_0
+            score_0 = score_1
+            score_1 = exp
 
     st.markdown(f"""
         <div class="badge-container">
