@@ -58,12 +58,12 @@ def normalize_result(result):
 
     raw_label = result.get("label", "Unknown")
     score = result.get("score", 0)
-
+    prediction = result.get("prediction", "")
     label = label_map.get(raw_label, raw_label)
 
-    return label, score, raw_label
+    return label, score, raw_label, prediction
 
-def render_score(label1, label2, score):
+def render_score_phobert(label1, label2, score):
     st.markdown(f"""
     <div class="badge-container">
         <div class="badge-green">
@@ -74,6 +74,28 @@ def render_score(label1, label2, score):
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+def render_score_xgboost(label1, label2, prediction, score):
+    score_pct = score * 100
+    inverse_pct = 100 - score_pct
+
+    if prediction == 0:
+        score_0 = inverse_pct
+        score_1 = score_pct
+    else:
+        score_0 = score_pct
+        score_1 = inverse_pct
+
+    st.markdown(f"""
+        <div class="badge-container">
+            <div class="badge-green">
+                {label1} {score_0:.1f}%
+            </div>
+            <div class="badge-blue">
+                {label2} {score_1:.1f}%
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 def render_circle_score(label, score):
     st.markdown(f"""
@@ -165,7 +187,7 @@ with col_right:
                         if isinstance(result, list):
                             result = result[0]
 
-                        result_label, score, label = normalize_result(result)
+                        result_label, score, label, prediction = normalize_result(result)
 
                         label1, label2, text_kq = set_label(result_label)
 
@@ -173,8 +195,10 @@ with col_right:
 
                         #render UI.
                         render_circle_score(result_label, score)
-
-                        render_score(label1, label2, score)
+                        if n < 2:
+                            render_score_phobert(label1, label2, score)
+                        else:
+                            render_score_xgboost(label1, label2, prediction, score)
 
                         st.markdown('<div style="margin-top:20px;"></div>',unsafe_allow_html=True)
 
