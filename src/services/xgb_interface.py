@@ -606,15 +606,10 @@ class BatchEvaluator:
             return None
         valid_df = extracted_df[self.feature_names].fillna(0.0)
         if hasattr(self.model, "predict_proba"):
-            # raw_probs là xác suất của class 1 (thường là AI)
             raw_probs = self.model.predict_proba(valid_df)[:, 1]
 
-            # Dự đoán dựa trên ngưỡng treshold
             predictions = (raw_probs >= self.threshold).astype(int)
 
-            # Khắc phục lỗi hiển thị UI ngược:
-            # UI cần 'Độ tự tin của nhãn vừa được dự đoán' thay vì nhận cứng xác suất class 1.
-            # Trả về: raw_probs nếu kết luận là 1 (AI), và (1.0 - raw_probs) nếu kết luận là 0 (Human)
             probabilities = np.where(predictions == 1, raw_probs, 1.0 - raw_probs)
         else:
             probabilities = [None] * len(valid_df)
